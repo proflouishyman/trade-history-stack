@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>SQL in the browser</title>
+<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:16px auto;padding:0 16px}
+textarea{width:100%;height:130px;font-family:Courier,monospace;font-size:15px}
+td,th{border:1px solid #ccc;padding:2px 8px} table{border-collapse:collapse;margin-top:8px}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+</head><body>
+<h1>SQL running inside your browser</h1>
+<p>No server: a 2.7 MB SQLite file (positive flows 1870-1914) is downloaded and queried locally.
+Tables: <code>flows(exporter, importer, year, value_gbp)</code>, <code>countries(iso, name, region)</code>.</p>
+<textarea id="sql">SELECT importer, ROUND(value_gbp) AS gbp FROM flows
+WHERE exporter = 'GBR' AND year = 1913
+ORDER BY value_gbp DESC LIMIT 10</textarea><br>
+<button id="run" disabled>Loading database...</button> <span id="msg"></span>
+<div id="out"></div>
+<footer style="margin-top:24px;font-size:13px;color:#555">Data: Fouquin &amp; Hugot (2016), CEPII WP 2016-14 (TRADHIST v4), Etalab 2.0. Nominal current GBP.</footer>
+<script>
+let db;
+async function start() {
+  // sql.js = SQLite compiled to WebAssembly; the .wasm file comes from the same CDN
+  const SQL = await initSqlJs({ locateFile: f => "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/" + f });
+  const bytes = await (await fetch("data/trade_1870_1914.db")).arrayBuffer();
+  db = new SQL.Database(new Uint8Array(bytes));
+  document.getElementById("run").disabled = false;
+  document.getElementById("run").textContent = "Run";
+}
+// Run the textarea's SQL and print the result as an HTML table
+function run() {
+  const out = document.getElementById("out");
+  try {
+    const res = db.exec(document.getElementById("sql").value)[0];
+    if (!res) { out.textContent = "(no rows)"; return; }
+    out.innerHTML = "<table><tr>" + res.columns.map(c => `<th>${c}</th>`).join("") + "</tr>" +
+      res.values.map(r => "<tr>" + r.map(v => `<td>${v}</td>`).join("") + "</tr>").join("") + "</table>";
+  } catch (e) { out.textContent = "SQL error: " + e.message; }
+}
+document.getElementById("run").onclick = run;
+start();
+</script></body></html>

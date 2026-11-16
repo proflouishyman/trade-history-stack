@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trade History Explorer</title>
+<style>
+ body { font-family: system-ui, sans-serif; margin: 0 auto; max-width: 1200px; padding: 16px; color: #222; }
+ .row { display: flex; gap: 24px; flex-wrap: wrap; } .row > div { flex: 1; min-width: 320px; }
+ #year { width: 400px; max-width: 80%; } footer { margin-top: 24px; font-size: 13px; color: #555; }
+ #mode { font-size: 13px; color: #555; }
+</style></head><body>
+<h1>Who traded with whom?</h1>
+<p>Country <select id="country"></select>
+   Year <input id="year" type="range"> <b id="yearLabel"></b>
+   <span id="mode"></span></p>
+<div class="row">
+  <div><h3>Top export destinations</h3><canvas id="exp"></canvas></div>
+  <div><h3>Top import origins</h3><canvas id="imp"></canvas></div>
+</div>
+<h3>Sum of the top-10 export partners over time (a lower bound on total exports)</h3>
+<div style="max-width:800px"><canvas id="line" height="90"></canvas></div>
+<footer id="note"></footer>
+<footer>Data: Fouquin &amp; Hugot (2016), <i>Two Centuries of Bilateral Trade and Gravity Data: 1827-2014</i>,
+ CEPII Working Paper 2016-14 (TRADHIST v4). Licence Etalab 2.0. Values are nominal current British pounds.</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body></html>
